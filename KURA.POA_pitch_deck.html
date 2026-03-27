@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KURA.POA — Pitch Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&display=swap');
+  :root {
+    --preto: #0a0a0a; --chumbo: #1a1a1a; --grafite: #2d2d2d;
+    --cinza-mid: #4a4a4a; --cinza-claro: #8a8a8a; --off-white: #f0ede6;
+    --creme: #e8e3d8; --cobalto: #2a3320; --cobalto-bright: #4a6035;
+    --accent: #c8973a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--preto); font-family:'Space Mono',monospace; color:var(--off-white); overflow:hidden; height:100vh; width:100vw; }
+  
+  .nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 32px; background:rgba(10,10,10,0.95);
+    border-bottom:1px solid rgba(200,169,110,0.2); backdrop-filter:blur(8px);
+  }
+  .nav-brand { font-family:'Cormorant Garamond',serif; font-size:12px; letter-spacing:0.35em; color:var(--accent); text-transform:uppercase; }
+  .nav-controls { display:flex; align-items:center; gap:20px; }
+  .slide-counter { font-size:10px; color:var(--cinza-claro); letter-spacing:0.2em; }
+  .nav-btn {
+    background:none; border:1px solid rgba(200,169,110,0.3); color:var(--off-white);
+    padding:5px 14px; font-family:'Space Mono',monospace; font-size:9px;
+    letter-spacing:0.15em; cursor:pointer; transition:all 0.2s; text-transform:uppercase;
+  }
+  .nav-btn:hover { background:var(--accent); color:var(--preto); border-color:var(--accent); }
+  
+  .slides-wrapper { height:100vh; overflow:hidden; }
+  .slide { display:none; height:100vh; padding:72px 48px 28px; position:relative; overflow:hidden; animation:fadeUp 0.35s ease; }
+  .slide.active { display:flex; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  
+  .slide-label {
+    position:absolute; top:68px; right:44px; font-size:9px; letter-spacing:0.3em;
+    color:var(--accent); text-transform:uppercase; writing-mode:vertical-rl;
+  }
+  .progress-bar { position:fixed; bottom:0; left:0; height:2px; background:var(--accent); transition:width 0.4s ease; z-index:100; }
+  .slide-nav-hint { position:fixed; bottom:16px; right:48px; font-size:8px; letter-spacing:0.25em; color:rgba(255,255,255,0.12); text-transform:uppercase; }
+  
+  /* UTILS */
+  .section-label { font-size:9px; letter-spacing:0.4em; color:var(--accent); text-transform:uppercase; margin-bottom:10px; display:block; }
+  .section-title { font-family:'Cormorant Garamond',serif; font-weight:300; font-size:clamp(28px,3.8vw,50px); letter-spacing:0.03em; line-height:1.1; color:var(--off-white); }
+  .section-title span { color:var(--cobalto-bright); }
+  
+  /* ========== SLIDE 1 ========== */
+  #slide-1 { flex-direction:column; justify-content:center; background:var(--preto); }
+  #slide-1::before { content:''; position:absolute; top:-40%; right:-15%; width:550px; height:550px; background:radial-gradient(ellipse,rgba(74,96,53,0.22) 0%,transparent 70%); pointer-events:none; }
+  #slide-1::after { content:''; position:absolute; bottom:-25%; left:-8%; width:380px; height:380px; background:radial-gradient(ellipse,rgba(200,169,110,0.07) 0%,transparent 70%); pointer-events:none; }
+  .s1-overline { font-size:9px; letter-spacing:0.45em; color:var(--cinza-claro); text-transform:uppercase; margin-bottom:22px; }
+  .s1-names { display:flex; flex-direction:column; gap:2px; margin-bottom:36px; }
+  .s1-name-option { display:flex; align-items:baseline; gap:14px; }
+  .s1-name-num { font-size:9px; color:var(--accent); letter-spacing:0.2em; min-width:22px; }
+  .s1-name-main { font-family:'Cormorant Garamond',serif; font-weight:300; font-size:clamp(40px,5.5vw,68px); letter-spacing:0.05em; line-height:1; color:var(--off-white); transition:color 0.2s; cursor:default; }
+  .s1-name-main.selected,.s1-name-main:hover { color:var(--accent); }
+  .s1-divider { width:56px; height:1px; background:var(--accent); margin:28px 0; opacity:0.55; }
+  .s1-subtitle { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:clamp(15px,1.8vw,20px); color:var(--cinza-claro); letter-spacing:0.05em; max-width:520px; line-height:1.55; }
+  .s1-tagline { margin-top:36px; font-size:9px; letter-spacing:0.35em; color:var(--cobalto-bright); text-transform:uppercase; }
+  .s1-geo-line { position:absolute; right:76px; top:50%; transform:translateY(-50%); width:1px; height:180px; background:linear-gradient(to bottom,transparent,var(--accent),transparent); opacity:0.35; }
+
+  /* ========== SLIDE 2 ========== */
+  #slide-2 { flex-direction:column; justify-content:center; background:var(--chumbo); }
+  #slide-2::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(to right,transparent,var(--cobalto-bright),var(--accent),transparent); }
+  .manifesto-pre { font-size:9px; letter-spacing:0.4em; color:var(--accent); text-transform:uppercase; margin-bottom:36px; }
+  .manifesto-body { font-family:'Cormorant Garamond',serif; font-weight:300; font-size:clamp(18px,2.5vw,32px); line-height:1.6; color:var(--off-white); max-width:780px; letter-spacing:0.02em; }
+  .manifesto-body em { font-style:italic; color:var(--accent); }
+  .manifesto-body strong { font-weight:600; }
+  .manifesto-closing { margin-top:36px; font-size:10px; letter-spacing:0.3em; color:var(--cobalto-bright); text-transform:uppercase; }
+  .manifesto-corner { position:absolute; bottom:72px; right:44px; width:72px; height:72px; border-right:1px solid rgba(200,169,110,0.28); border-bottom:1px solid rgba(200,169,110,0.28); }
+
+  /* ========== SLIDE 3 ========== */
+  #slide-3 { flex-direction:column; justify-content:center; background:var(--preto); }
+  .s3-header { margin-bottom:40px; }
+  .problems-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:860px; }
+  .problem-card { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.055); border-left:2px solid var(--cobalto-bright); padding:18px 22px; }
+  .problem-card .num { font-size:8px; color:var(--accent); letter-spacing:0.3em; margin-bottom:7px; display:block; }
+  .problem-card p { font-size:11px; line-height:1.7; color:var(--cinza-claro); letter-spacing:0.02em; }
+  .problem-card strong { color:var(--off-white); }
+  .problem-stat { position:absolute; bottom:72px; right:44px; text-align:right; border-right:2px solid var(--accent); padding-right:14px; }
+  .problem-stat .big-num { font-family:'Cormorant Garamond',serif; font-size:58px; font-weight:300; color:var(--accent); line-height:1; }
+  .problem-stat .big-label { font-size:8px; letter-spacing:0.28em; color:var(--cinza-claro); text-transform:uppercase; margin-top:4px; }
+
+  /* ========== SLIDE 4 ========== */
+  #slide-4 { flex-direction:column; justify-content:center; background:#1e2618; overflow:hidden; }
+  #slide-4::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(10,10,10,0.65) 0%,transparent 60%),repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,255,255,0.018) 40px,rgba(255,255,255,0.018) 41px); }
+  .solution-pill { display:inline-block; background:var(--accent); color:var(--preto); font-size:9px; letter-spacing:0.25em; padding:5px 14px; text-transform:uppercase; margin-bottom:20px; position:relative; }
+  .s4-title { font-family:'Cormorant Garamond',serif; font-weight:300; font-size:clamp(26px,3.8vw,48px); color:var(--off-white); letter-spacing:0.03em; line-height:1.15; position:relative; margin-bottom:32px; }
+  .solution-points { display:flex; flex-direction:column; gap:14px; max-width:660px; position:relative; }
+  .solution-point { display:flex; align-items:flex-start; gap:18px; }
+  .solution-point .icon { min-width:30px; height:30px; border:1px solid rgba(200,169,110,0.38); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--accent); font-weight:700; flex-shrink:0; }
+  .solution-point .text { font-size:11px; line-height:1.7; color:rgba(240,237,230,0.82); letter-spacing:0.02em; }
+  .solution-point .text strong { color:var(--off-white); display:block; font-size:10px; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:3px; }
+  .longfit-bg { position:absolute; right:-30px; bottom:60px; font-family:'Cormorant Garamond',serif; font-size:120px; font-weight:300; color:rgba(255,255,255,0.04); line-height:1; letter-spacing:-3px; white-space:nowrap; pointer-events:none; }
+
+  /* ========== SLIDE 5 ========== */
+  #slide-5 { flex-direction:column; justify-content:center; background:var(--chumbo); }
+  .model-split { display:grid; grid-template-columns:1fr 1fr; gap:2px; max-width:880px; margin-top:36px; }
+  .model-col { padding:28px; }
+  .model-col.curadoria { background:rgba(74,96,53,0.12); border-top:2px solid var(--cobalto-bright); }
+  .model-col.private { background:rgba(200,169,110,0.07); border-top:2px solid var(--accent); }
+  .model-col-pct { font-family:'Cormorant Garamond',serif; font-size:52px; font-weight:300; line-height:1; margin-bottom:6px; }
+  .model-col.curadoria .model-col-pct { color:var(--cobalto-bright); }
+  .model-col.private .model-col-pct { color:var(--accent); }
+  .model-col-title { font-size:10px; letter-spacing:0.25em; text-transform:uppercase; margin-bottom:18px; color:var(--off-white); }
+  .model-col ul { list-style:none; display:flex; flex-direction:column; gap:9px; }
+  .model-col ul li { font-size:10.5px; line-height:1.65; color:var(--cinza-claro); padding-left:14px; position:relative; letter-spacing:0.02em; }
+  .model-col ul li::before { content:'—'; position:absolute; left:0; font-size:9px; }
+  .model-col.curadoria ul li::before { color:var(--cobalto-bright); }
+  .model-col.private ul li::before { color:var(--accent); }
+  .model-col ul li strong { color:var(--off-white); }
+
+  /* ========== SLIDE 6 ========== */
+  #slide-6 { flex-direction:column; justify-content:center; background:var(--preto); }
+  .estetica-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:880px; margin-top:36px; }
+  .estetica-card { padding:22px 18px; border:1px solid rgba(255,255,255,0.045); position:relative; overflow:hidden; }
+  .estetica-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+  .estetica-card:nth-child(1)::before { background:var(--cinza-mid); }
+  .estetica-card:nth-child(2)::before { background:var(--cobalto-bright); }
+  .estetica-card:nth-child(3)::before { background:var(--accent); }
+  .estetica-card .e-title { font-size:9px; letter-spacing:0.3em; text-transform:uppercase; color:var(--cinza-claro); margin-bottom:14px; display:block; }
+  .estetica-card p { font-size:11px; line-height:1.75; color:rgba(240,237,230,0.72); letter-spacing:0.02em; }
+  .estetica-card p strong { color:var(--off-white); }
+  .color-swatches { display:flex; gap:7px; margin-top:12px; }
+  .swatch { width:18px; height:18px; }
+
+  /* ========== SLIDE 7 ========== */
+  #slide-7 { flex-direction:column; justify-content:center; background:var(--chumbo); }
+  .guide-content { display:grid; grid-template-columns:1fr 1.15fr; gap:44px; max-width:880px; margin-top:32px; align-items:start; }
+  .guide-left p { font-size:11px; line-height:1.75; color:var(--cinza-claro); letter-spacing:0.02em; margin-bottom:16px; }
+  .guide-left p strong { color:var(--off-white); }
+  .guide-table { border-collapse:collapse; width:100%; font-size:10px; }
+  .guide-table thead tr { border-bottom:1px solid var(--accent); }
+  .guide-table th { padding:7px 10px; text-align:left; font-size:8px; letter-spacing:0.25em; text-transform:uppercase; color:var(--accent); font-weight:400; }
+  .guide-table td { padding:9px 10px; color:var(--cinza-claro); border-bottom:1px solid rgba(255,255,255,0.04); letter-spacing:0.02em; vertical-align:middle; }
+  .guide-table tr:last-child td { border-bottom:none; }
+  .guide-table td strong { color:var(--off-white); }
+  .guide-table .highlight-row td { color:var(--accent); background:rgba(200,169,110,0.05); }
+  .guide-table .highlight-row td strong { color:var(--accent); }
+  .table-note { margin-top:12px; font-size:9px; color:var(--cinza-claro); letter-spacing:0.05em; }
+
+  /* ========== SLIDE 8 ========== */
+  #slide-8 { flex-direction:column; justify-content:center; background:var(--preto); }
+  .personas-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:880px; margin-top:36px; }
+  .persona-card { padding:24px 20px; border:1px solid rgba(255,255,255,0.055); position:relative; }
+  .persona-card::after { content:''; position:absolute; bottom:0; right:0; width:36px; height:36px; border-bottom:1px solid rgba(200,169,110,0.18); border-right:1px solid rgba(200,169,110,0.18); }
+  .persona-card .p-name { font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:300; color:var(--off-white); margin-bottom:3px; letter-spacing:0.05em; }
+  .persona-card .p-tag { font-size:8px; letter-spacing:0.3em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; display:block; }
+  .persona-card p { font-size:11px; line-height:1.75; color:var(--cinza-claro); letter-spacing:0.02em; }
+  .personas-footer { margin-top:18px; font-size:10.5px; color:var(--cinza-claro); letter-spacing:0.04em; max-width:680px; line-height:1.7; }
+  .personas-footer strong { color:var(--off-white); }
+
+  /* ========== SLIDE 9 ========== */
+  #slide-9 { flex-direction:column; justify-content:center; background:var(--chumbo); }
+  .roadmap-phases { display:flex; gap:0; max-width:880px; margin-top:36px; position:relative; }
+  .roadmap-phases::before { content:''; position:absolute; top:36px; left:0; right:0; height:1px; background:linear-gradient(to right,var(--cobalto-bright),var(--accent),var(--accent)); opacity:0.45; }
+  .phase { flex:1; padding:0 20px 0 0; }
+  .phase-dot { width:11px; height:11px; border:2px solid var(--accent); background:var(--chumbo); margin-bottom:20px; position:relative; z-index:1; }
+  .phase:nth-child(1) .phase-dot { border-color:var(--cobalto-bright); background:var(--cobalto-bright); }
+  .phase:nth-child(2) .phase-dot { border-color:var(--cinza-mid); background:var(--cinza-mid); }
+  .phase-num { font-size:8px; letter-spacing:0.3em; color:var(--accent); text-transform:uppercase; margin-bottom:6px; display:block; }
+  .phase-title { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:300; color:var(--off-white); margin-bottom:14px; line-height:1.2; }
+  .phase ul { list-style:none; display:flex; flex-direction:column; gap:7px; }
+  .phase ul li { font-size:10.5px; line-height:1.6; color:var(--cinza-claro); padding-left:13px; position:relative; letter-spacing:0.02em; }
+  .phase ul li::before { content:'›'; position:absolute; left:0; color:var(--accent); }
+  .phase ul li strong { color:var(--off-white); }
+
+  /* ========== SLIDE 10 ========== */
+  #slide-10 { flex-direction:column; justify-content:center; align-items:center; text-align:center; background:var(--preto); }
+  #slide-10::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(74,96,53,0.12) 0%,transparent 70%); }
+  .closing-pre { font-size:9px; letter-spacing:0.5em; color:var(--cinza-claro); text-transform:uppercase; margin-bottom:28px; position:relative; }
+  .closing-name { font-family:'Cormorant Garamond',serif; font-weight:300; font-size:clamp(52px,8vw,90px); letter-spacing:0.1em; color:var(--off-white); line-height:1; position:relative; margin-bottom:14px; }
+  .closing-sub { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:18px; color:var(--accent); letter-spacing:0.08em; margin-bottom:40px; position:relative; }
+  .closing-divider { width:72px; height:1px; background:var(--accent); margin:0 auto 36px; opacity:0.45; position:relative; }
+  .contact-grid { display:flex; gap:44px; justify-content:center; position:relative; }
+  .contact-item { text-align:center; }
+  .contact-item .c-label { font-size:8px; letter-spacing:0.4em; color:var(--cinza-claro); text-transform:uppercase; margin-bottom:6px; display:block; }
+  .contact-item .c-val { font-size:12px; color:var(--off-white); letter-spacing:0.05em; }
+  .closing-bottom { position:absolute; bottom:40px; font-size:8px; letter-spacing:0.3em; color:rgba(255,255,255,0.12); text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand" id="brandName">KURA.POA</div>
+  <div class="nav-controls">
+    <span class="slide-counter" id="counter">01 / 10</span>
+    <button class="nav-btn" onclick="prevSlide()">← ANT</button>
+    <button class="nav-btn" onclick="nextSlide()">PRÓX →</button>
+  </div>
+</nav>
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="slides-wrapper">
+
+<!-- SLIDE 1 -->
+<div class="slide active" id="slide-1">
+  <div class="slide-label">01 — CAPA</div>
+  <div class="s1-overline">Apresentação Comercial · Estilistas & Parceiros · Porto Alegre</div>
+  <div class="s1-names">
+    <div class="s1-name-option">
+      <span class="s1-name-main selected" style="font-size:clamp(52px,7.5vw,88px);letter-spacing:0.08em">KURA.POA</span>
+    </div>
+  </div>
+  <div class="s1-divider"></div>
+  <p class="s1-subtitle">Design de caimento. Roupas que respeitam o corpo — não o contrário.</p>
+  <p class="s1-tagline">Moda Autoral · Caimento Real · Porto Alegre</p>
+  <div class="s1-geo-line"></div>
+</div>
+
+<!-- SLIDE 2 -->
+<div class="slide" id="slide-2">
+  <div class="slide-label">02 — MANIFESTO</div>
+  <p class="manifesto-pre">A Tese</p>
+  <div class="manifesto-body">
+    A forma precede o gênero.<br><br>
+    Antes de qualquer símbolo, declaração ou rótulo —<br>
+    existe o caimento. O ombro que encontra o ombro certo.<br>
+    A barra que chega onde deve chegar. O tecido que<br>
+    <em>conversa com o corpo</em>, não que o aprisiona.<br><br>
+    Roupas que cabem bem <strong>são, por definição, libertadoras.</strong><br>
+    Nós construímos para proporções reais. Para corpos diversos,<br>
+    presentes, fora do molde normativo. Para quem recusou aceitar<br>
+    "isso é o que tem".
+  </div>
+  <p class="manifesto-closing">Show, don't tell. — Nosso princípio editorial.</p>
+  <div class="manifesto-corner"></div>
+</div>
+
+<!-- SLIDE 3 -->
+<div class="slide" id="slide-3">
+  <div class="slide-label">03 — GAP</div>
+  <div class="s3-header">
+    <span class="section-label">O Problema de Mercado</span>
+    <h2 class="section-title">Existe moda agênero.<br>Mas não para <span>este corpo.</span></h2>
+  </div>
+  <div class="problems-grid">
+    <div class="problem-card">
+      <span class="num">01</span>
+      <p><strong>O básico mascarado de vanguarda.</strong> O mercado chama de "agênero" o que são básicos masculinos redimensionados: camiseta lisa, moletom escuro. Sem projeto de modelagem real.</p>
+    </div>
+    <div class="problem-card">
+      <span class="num">02</span>
+      <p><strong>Comprimento ignorado.</strong> Peças "oversized" pensadas para 1,70m ficam curtas em braços longos e entrepernas estendidos. O fit "folgado" não significa fit inclusivo.</p>
+    </div>
+    <div class="problem-card">
+      <span class="num">03</span>
+      <p><strong>Estética ativista, não editorial.</strong> A moda inclusiva comunica causa antes de design. Falta sofisticação urbana — alfaiataria, estrutura, materiais. A proposta não compete com Acne ou COS.</p>
+    </div>
+    <div class="problem-card">
+      <span class="num">04</span>
+      <p><strong>Talentos locais sem vitrine.</strong> Porto Alegre tem estilistas com estética relevante (Neo-Alfaiataria, Utilitarismo, Minimalismo Escultural) sem canal de distribuição fashion-forward.</p>
+    </div>
+  </div>
+  <div class="problem-stat">
+    <div class="big-num">1,90</div>
+    <div class="big-label">metros. A fundadora<br>é a própria fit model.</div>
+  </div>
+</div>
+
+<!-- SLIDE 4 -->
+<div class="slide" id="slide-4">
+  <div class="slide-label">04 — SOLUÇÃO</div>
+  <span class="section-label" style="position:relative">A Proposta de Valor</span>
+  <div class="solution-pill">Long Fit Editorial</div>
+  <p class="s4-title">O hub onde design de vanguarda<br>encontra o fit perfeito.</p>
+  <div class="solution-points">
+    <div class="solution-point">
+      <div class="icon">01</div>
+      <div class="text"><strong>Curadoria Fashion-Forward</strong>Seleção editorial de estilistas independentes com estética compatível — Neo-Alfaiataria, Utilitarismo, Minimalismo Escultural. Nenhum básico sem intenção de design.</div>
+    </div>
+    <div class="solution-point">
+      <div class="icon">02</div>
+      <div class="text"><strong>Private Label de Caimento</strong>Linha própria de essenciais com modelagem pensada para proporções diversas: entrepernas calibrado, manga com comprimento real, ombro estruturado onde deve estar.</div>
+    </div>
+    <div class="solution-point">
+      <div class="icon">03</div>
+      <div class="text"><strong>Tabela de Medidas Inteligente</strong>Sistema de tamanho baseado em altura + proporções — não no paradigma XS/M/GG que invisibiliza corpos fora da média normativa.</div>
+    </div>
+  </div>
+  <div class="longfit-bg">LONG FIT</div>
+</div>
+
+<!-- SLIDE 5 -->
+<div class="slide" id="slide-5">
+  <div class="slide-label">05 — MODELO</div>
+  <span class="section-label">Estratégia de Negócio</span>
+  <h2 class="section-title">Modelo Híbrido:<br>Curadoria + Private Label</h2>
+  <div class="model-split">
+    <div class="model-col curadoria">
+      <div class="model-col-pct">60%</div>
+      <div class="model-col-title">Curadoria de Talentos</div>
+      <ul>
+        <li>Seleção de estilistas independentes com estética editorial compatível</li>
+        <li>Prioridade a <strong>talentos locais de Porto Alegre</strong> (ex: Ocre, Contextura, Humanus)</li>
+        <li>Filtro curatorial rigoroso: tecido, construção, proposta visual</li>
+        <li>Vitrine editorial com fotografia de direção autoral</li>
+        <li>Condições claras: consignação ou aquisição por coleção</li>
+      </ul>
+    </div>
+    <div class="model-col private">
+      <div class="model-col-pct">40%</div>
+      <div class="model-col-title">Private Label — Essenciais de Caimento</div>
+      <ul>
+        <li>Peças desenvolvidas onde a curadoria <strong>não alcança</strong>: comprimento e proporção</li>
+        <li>SKUs iniciais: <strong>Pantalona Perfeita</strong>, Camiseta Alta Gramatura, Blazer Estruturado Agênero</li>
+        <li>Parceria com ateliê local para prototipagem e pequenas séries</li>
+        <li>Gradação por <strong>altura real</strong>, não por circunferência</li>
+        <li>Tag "Feito para o seu corpo" — diferencial técnico visível</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6 -->
+<div class="slide" id="slide-6">
+  <div class="slide-label">06 — ARTE</div>
+  <span class="section-label">Direção de Arte & Identidade Visual</span>
+  <h2 class="section-title" style="margin-bottom:32px">Vibe: <em style="font-style:italic;color:var(--accent)">Arquitetura Urbana.</em></h2>
+  <div class="estetica-grid">
+    <div class="estetica-card">
+      <span class="e-title">Fotografia</span>
+      <p><strong>Luz dura. Sombras marcadas.</strong> Zero fundo branco de e-commerce. Locações em concreto e estrutura urbana de Porto Alegre. A cidade como cenografia. A roupa como arquitetura.</p>
+      <p style="margin-top:12px">Curadoria fotográfica <strong>in-house</strong> — aproveitando o background da fundadora em fotografia e edição. Diferencial editorial real.</p>
+    </div>
+    <div class="estetica-card">
+      <span class="e-title">Paleta Cromática</span>
+      <p><strong>Neutros profundos como base:</strong></p>
+      <div class="color-swatches">
+        <div class="swatch" style="background:#0a0a0a;border:1px solid rgba(255,255,255,0.1)"></div>
+        <div class="swatch" style="background:#3a3a3a"></div>
+        <div class="swatch" style="background:#f0ede6;border:1px solid rgba(0,0,0,0.15)"></div>
+      </div>
+      <p style="margin-top:10px"><strong>Ponto de cor estratégico:</strong></p>
+      <div class="color-swatches">
+        <div class="swatch" style="background:#2a3320"></div>
+        <div class="swatch" style="background:#4a6035"></div>
+      </div>
+      <p style="margin-top:10px">O verde oliva como assinatura fria. Usado com parcimônia — um detalhe, um forro, uma costura exposta.</p>
+    </div>
+    <div class="estetica-card">
+      <span class="e-title">Linguagem Visual</span>
+      <p><strong>Show, Don't Tell.</strong> Nenhuma copy diz "agênero". A proposta está na imagem: o corpo, o volume, o caimento. A identidade comunica design — não causa.</p>
+      <p style="margin-top:12px">Tipografia editorial minimalista. Grid assimétrico. Proporção e peso visual das imagens como protagonistas absolutos.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7 -->
+<div class="slide" id="slide-7">
+  <div class="slide-label">07 — MODELAGEM</div>
+  <span class="section-label">Diferencial Técnico</span>
+  <h2 class="section-title" style="margin-bottom:0">O Guia de Modelagem:<br>Tamanho por <span>altura + proporção.</span></h2>
+  <div class="guide-content">
+    <div class="guide-left">
+      <p>O sistema convencional (P, M, G, GG) foi desenhado para uma faixa estreita de proporções. <strong>Não serve para corpos diversos.</strong></p>
+      <p>Nossa tabela parte de <strong>faixas de altura reais</strong> cruzadas com circunferência de ombro e entrepernas — para corpos baixos, médios, altos. O resultado: uma peça que pode ser "P em volume" mas "M em comprimento", ou o inverso.</p>
+      <p>O Private Label é desenvolvido <strong>a partir desta tabela</strong> — não o contrário. A fundadora (1,90m) é o ponto zero da prototipagem, mas o sistema escala em todas as direções.</p>
+    </div>
+    <div>
+      <table class="guide-table">
+        <thead>
+          <tr><th>Código</th><th>Altura</th><th>Manga</th><th>Entrepernas</th><th>Ombro</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>S / 155</td><td>155–165 cm</td><td>60 cm</td><td>76 cm</td><td>42 cm</td></tr>
+          <tr><td>M / 166</td><td>166–175 cm</td><td>63 cm</td><td>80 cm</td><td>44 cm</td></tr>
+          <tr><td>L / 176</td><td>176–185 cm</td><td>66 cm</td><td>84 cm</td><td>47 cm</td></tr>
+          <tr class="highlight-row"><td><strong>XL / 186</strong></td><td><strong>186–195 cm</strong></td><td><strong>69 cm</strong></td><td><strong>88 cm</strong></td><td><strong>49 cm</strong></td></tr>
+        </tbody>
+      </table>
+      <p class="table-note">Tabela ilustrativa — medidas reais definidas na prototipagem com a fit model fundadora.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8 -->
+<div class="slide" id="slide-8">
+  <div class="slide-label">08 — PÚBLICO</div>
+  <span class="section-label">Quem compra aqui</span>
+  <h2 class="section-title" style="margin-bottom:0">Não um nicho de identidade.<br>Um nicho de <span>estética e valor.</span></h2>
+  <div class="personas-grid">
+    <div class="persona-card">
+      <div class="p-name">O Criativo</div>
+      <span class="p-tag">Designer / Arquiteto / Art Director</span>
+      <p>Consome referências internacionais (Lemaire, A-Cold-Wall, COS). Valoriza construção e tecido. Não quer ser identificado por um rótulo — quer ser visto pelo que veste.</p>
+    </div>
+    <div class="persona-card">
+      <div class="p-name">O Tech</div>
+      <span class="p-tag">Dev / PM / Founders</span>
+      <p>Renda disponível. Cansado do polo genérico. Quer vestir algo com intenção sem depender de fast fashion. Aprecia a lógica sistemática da tabela de medidas.</p>
+    </div>
+    <div class="persona-card">
+      <div class="p-name">O Corpo Diverso</div>
+      <span class="p-tag">Qualquer altura / Qualquer proporção</span>
+      <p>Cansado de adaptar o corpo à roupa. Seja alto demais, baixo demais, ombro largo, quadril diferente — o mercado padrão sempre falha em alguma medida. Aqui o fit parte da proporção real, não da norma.</p>
+    </div>
+  </div>
+  <p class="personas-footer">
+    Ponto em comum: <strong>consciência estética + renda disponível + insatisfação com o mercado atual.</strong><br>
+    O recorte de identidade é consequência, não premissa do posicionamento.
+  </p>
+</div>
+
+<!-- SLIDE 9 -->
+<div class="slide" id="slide-9">
+  <div class="slide-label">09 — ROADMAP</div>
+  <span class="section-label">Lançamento MVP — 90 Dias</span>
+  <h2 class="section-title">Da ideia ao <span>primeiro pedido.</span></h2>
+  <div class="roadmap-phases">
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <span class="phase-num">Dias 01–30</span>
+      <div class="phase-title">Setup &<br>Protótipos</div>
+      <ul>
+        <li>Definição do nome e identidade visual</li>
+        <li>Seleção inicial de <strong>3–5 estilistas</strong> para curadoria</li>
+        <li>Desenvolvimento de <strong>2 protótipos Private Label</strong> (Pantalona + Camiseta)</li>
+        <li>Construção da tabela de medidas Long Fit</li>
+        <li>Setup técnico da loja (Shopify / Nuvemshop)</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <span class="phase-num">Dias 31–60</span>
+      <div class="phase-title">Produção &<br>Editorial</div>
+      <ul>
+        <li>Sessão fotográfica editorial — <strong>locações urbanas POA</strong></li>
+        <li>Ajuste de protótipos após prova com fit model</li>
+        <li>Produção de <strong>20–30 peças</strong> por SKU (first drop)</li>
+        <li>Catálogo online com copywriting editorial</li>
+        <li>Ativação Instagram e canal de newsletter</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <span class="phase-num">Dias 61–90</span>
+      <div class="phase-title">Lançamento<br>& Feedback</div>
+      <ul>
+        <li>Go-live do e-commerce (<strong>"Drop 01"</strong>)</li>
+        <li>Venda para rede próxima como validação inicial</li>
+        <li>Coleta de feedback de fit — tamanhos e proporções</li>
+        <li>Análise de sell-through por peça e estilista</li>
+        <li>Planejamento do <strong>Drop 02</strong> com dados reais</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10 -->
+<div class="slide" id="slide-10">
+  <div class="slide-label">10 — CONTATO</div>
+  <p class="closing-pre">Uma proposta de parceria editorial</p>
+  <div class="closing-name">KURA.POA</div>
+  <div class="closing-sub">Design de caimento. Corpo real.</div>
+  <div class="closing-divider"></div>
+  <div class="contact-grid">
+    <div class="contact-item">
+      <span class="c-label">E-mail</span>
+      <div class="c-val">contato@kura.poa</div>
+    </div>
+    <div class="contact-item">
+      <span class="c-label">Instagram</span>
+      <div class="c-val">@kura.poa</div>
+    </div>
+    <div class="contact-item">
+      <span class="c-label">Cidade</span>
+      <div class="c-val">Porto Alegre, RS</div>
+    </div>
+  </div>
+  <div class="closing-bottom">© 2025 · Confidencial · Apresentação Comercial</div>
+</div>
+
+</div><!-- /slides-wrapper -->
+
+<div class="slide-nav-hint">← → ou click para navegar</div>
+
+<script>
+  let current = 1;
+  const total = 10;
+
+  function updateSlide(n) {
+    document.querySelector('.slide.active')?.classList.remove('active');
+    document.getElementById('slide-' + n)?.classList.add('active');
+    document.getElementById('counter').textContent = String(n).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+    document.getElementById('progressBar').style.width = (n / total * 100) + '%';
+  }
+
+  function nextSlide() {
+    if (current < total) { current++; updateSlide(current); }
+  }
+
+  function prevSlide() {
+    if (current > 1) { current--; updateSlide(current); }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+  });
+
+  updateSlide(1);
+</script>
+</body>
+</html>
